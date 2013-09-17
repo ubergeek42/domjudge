@@ -187,6 +187,8 @@ fi
 
 # Copy bash for scala to use
 cp -pL "/chroot/domjudge/bin/bash" ../bin/bash
+cp -pL "/chroot/domjudge/bin/grep" ../bin/grep
+cp -pL "/chroot/domjudge/bin/uname" ../bin/uname
 
 # We copy /dev/null: mknod (and the major/minor device numbers) are
 # not portable, while a fifo link has the problem that a cat program
