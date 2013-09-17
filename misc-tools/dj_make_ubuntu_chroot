@@ -28,7 +28,7 @@ INCLUDEDEBS=""
 # Packages to install after upgrade (space separated):
 INSTALLDEBS="mono-mcs mono-gmcs mono-dmcs lua5.2 python3"
 # The url for scala(should point to the version you want)
-SCALAPKG="http://www.scala-lang.org/downloads/distrib/files/scala-2.10.2.tgz"
+SCALAPKG="http://www.scala-lang.org/files/archive/scala-2.10.2.tgz"
 
 # Packages to remove after upgrade (space separated):
 REMOVEDEBS=""
