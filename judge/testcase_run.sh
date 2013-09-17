@@ -185,6 +185,9 @@ if [ -n "$SPECIALRUN" -a -f "$RUN_JURYPROG" ]; then
 	chmod a+rx runjury ../bin/runpipe
 fi
 
+# Copy bash for scala to use
+cp -pL "/chroot/domjudge/bin/bash" ../bin/bash
+
 # We copy /dev/null: mknod (and the major/minor device numbers) are
 # not portable, while a fifo link has the problem that a cat program
 # must be run and killed.
