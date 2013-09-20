@@ -120,6 +120,21 @@ Please supply team credentials below, or contact a staff member for assistance.
 </form>
 
 <?php
+if (dbconfig_get('allow_registration', false)) { ?>
+<p>If you do not have an account, you can register for one below: </p>
+<form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
+<input type="hidden" name="cmd" value="register" />
+<table>
+<tr><td><label for="login">Username:</label></td><td><input type="text" id="login" name="login" value="" size="15" maxlength="15" accesskey="l" /></td></tr>
+<tr><td><label for="name">Team Name:</label></td><td><input type="text" id="name" name="name" value="" size="15" maxlength="15" accesskey="n" /></td></tr>
+<tr><td><label for="passwd">Password:</label></td><td><input type="password" id="passwd" name="passwd" value="" size="15" maxlength="255" accesskey="p" /></td></tr>
+<tr><td><label for="passwd2">Retype password:</label></td><td><input type="password" id="passwd2" name="passwd2" value="" size="15" maxlength="255" accesskey="r" /></td></tr>
+<tr><td></td><td><input type="submit" value="Register" /></td></tr>
+</table>
+</form>
+<?php } //endif allow_registration ?>
+
+<?php
 		putDOMjudgeVersion();
 		include(LIBWWWDIR . '/footer.php');
 		break;
@@ -255,6 +270,52 @@ function do_login()
 	// Authentication success. We could just return here, but we do a
 	// redirect to clear the POST data from the browser.
 	header("Location: ./");
+	exit;
+}
+
+function do_register() {
+	global $DB, $ip;
+	if ( !dbconfig_get('allow_registration', false) ) {
+		error("Self-Registration is disabled.");
+	}
+	if ( AUTH_METHOD != "PHP_SESSIONS") {
+		error("You can only register if the site is using PHP Sessions for authentication.");
+	}
+
+	$login = trim($_POST['login']);
+	$name = trim($_POST['name']);
+	$pass = trim($_POST['passwd']);
+	$pass2 = trim($_POST['passwd2']);
+
+	if ( $login == '' || $name== '' || $pass == '') {
+		error("You must enter all fields");
+	}
+
+	if ( $pass != $pass2 ) {
+		error("Your passwords do not match.  Please go back and try registering again.");
+	}
+	$team = $DB->q('MAYBETUPLE SELECT * FROM team WHERE login = %s', $login);
+	if ( $team ) {
+		error("That login is already taken.");
+	}
+
+	$i = array();
+	$i['login'] = $login;
+	$i['authtoken'] = md5($login."#".$pass);
+	$i['name'] = $name;
+	$i['categoryid'] = 2;
+	$i['enabled'] = 1;
+	$i['comments'] = "Registered by $ip on " . date();
+
+	$newid = $DB->q("RETURNID INSERT INTO team SET %S", $i);
+	auditlog('team', $newid, 'registered by ' . $ip);
+
+	$title = 'Account Registered';
+	$menu = false;
+
+	require(LIBWWWDIR . '/header.php');
+	echo "<h1>Account registered</h1>\n\n<p><a href="./">Click here to login.</a></p>\n\n";
+	require(LIBWWWDIR . '/footer.php');
 	exit;
 }
 
