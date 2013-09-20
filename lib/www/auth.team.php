@@ -314,7 +314,7 @@ function do_register() {
 	$menu = false;
 
 	require(LIBWWWDIR . '/header.php');
-	echo "<h1>Account registered</h1>\n\n<p><a href="./">Click here to login.</a></p>\n\n";
+	echo "<h1>Account registered</h1>\n\n<p><a href=\"./\">Click here to login.</a></p>\n\n";
 	require(LIBWWWDIR . '/footer.php');
 	exit;
 }
