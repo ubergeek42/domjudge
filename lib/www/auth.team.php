@@ -305,7 +305,7 @@ function do_register() {
 	$i['name'] = $name;
 	$i['categoryid'] = 2;
 	$i['enabled'] = 1;
-	$i['comments'] = "Registered by $ip on " . date();
+	$i['comments'] = "Registered by $ip on " . date('r');
 
 	$newid = $DB->q("RETURNID INSERT INTO team SET %S", $i);
 	auditlog('team', $newid, 'registered by ' . $ip);
