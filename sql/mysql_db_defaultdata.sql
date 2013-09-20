@@ -55,6 +55,7 @@ INSERT INTO `language` (`langid`, `name`, `allow_submit`, `allow_judge`, `time_f
 -- 
 -- System category
 INSERT INTO `team_category` VALUES (1, 'System', 9, '#ff2bea', 0);
+INSERT INTO `team_category` VALUES (2, 'Self-Registered', 8, '#33cc44', 1);
 
 -- 
 -- Dumping data for table `team`
