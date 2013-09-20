@@ -24,8 +24,10 @@ require_once(LIBWWWDIR . '/scoreboard.php');
 require_once(LIBWWWDIR . '/printing.php');
 require_once(LIBWWWDIR . '/auth.team.php');
 
-// The functions do_login and show_loginpage, if called, do not return.
+// The functions do_login, do_register and show_loginpage, if called, do not return.
 if ( @$_POST['cmd']=='login' ) do_login();
+
+if ( @$_POST['cmd']=='register' ) do_register();
 
 if ( !logged_in() ) show_loginpage();
 
