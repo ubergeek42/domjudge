@@ -117,7 +117,7 @@ $clarifications = $DB->q('SELECT c.*, u.type AS unread FROM clarification c
 echo "<h3 class=\"teamoverview\">Problem Statements</h3>";
 if ( ENABLE_WEBSUBMIT_SERVER && $fdata['cstarted'] ) {
 	echo "<ul>";
-	for ($probdata as $probid => $probname) {
+	foreach ($probdata as $probid => $probname) {
 		echo "<li><a href=\"problem.php?id=$probid\">Problem " . htmlspecialchars($probid) . " - "
 		     . htmlspecialchars($probname) . "</a></li>";
 	}
