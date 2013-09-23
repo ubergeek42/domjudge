@@ -114,6 +114,18 @@ $clarifications = $DB->q('SELECT c.*, u.type AS unread FROM clarification c
                           ORDER BY c.submittime DESC, c.clarid DESC',
                           $login, $cid, $login);
 
+echo "<h3 class=\"teamoverview\">Problem Statements</h3>";
+if ( ENABLE_WEBSUBMIT_SERVER && $fdata['cstarted'] ) {
+	echo "<ul>";
+	for ($probdata as $probid => $probname) {
+		echo "<li><a href=\"problem.php?id=$probid\">Problem " . htmlspecialchars($probid) . " - "
+		     . htmlspecialchars($probname) . "</a></li>";
+	}
+	echo "</ul>";
+} else {
+	echo "<p class=\"nodata\">No problem statements</p>";
+}
+
 echo "<h3 class=\"teamoverview\">Clarifications</h3>\n";
 
 # FIXME: column width and wrapping/shortening of clarification text
