@@ -290,6 +290,10 @@ function do_register() {
 	if ( $login == '' || $name== '' || $pass == '') {
 		error("You must enter all fields");
 	}
+	
+	if ( !ctype_alnum($login) ) {
+		error("Username must consist of only alphanumeric characters.");
+	}
 
 	if ( $pass != $pass2 ) {
 		error("Your passwords do not match.  Please go back and try registering again.");
