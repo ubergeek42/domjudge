@@ -573,6 +573,76 @@ function putProblemTextList()
 	}
 }
 
+function putSampleDataList() {
+        global $cid, $cdata, $DB;
+        $fdata = calcFreezeData($cdata);
+
+        $show_sample = dbconfig_get('show_sample_output', 0);
+        if ( ! $show_sample ) {
+                echo "<p class=\"nodata\">No sample data available for this contest.</p>\n\n";
+        } elseif ( !$fdata['cstarted'] ) {
+                echo "<p class=\"nodata\">Sample data will appear here at contest start.</p>\n\n";
+        } else {
+                // otherwise, display list
+                $res = $DB->q('SELECT
+                              p.probid,cp.shortname,p.name,t.testcaseid,t.description
+                              FROM problem p
+                              INNER JOIN contestproblem cp USING (probid)
+                              LEFT JOIN testcase t USING (probid)
+                              WHERE cid = %i AND allow_submit = 1 AND
+                              t.sample = 1 ORDER BY p.probid,shortname', $cid);
+                $currentprobid = -1;
+                if ( $res->count() > 0 ) {
+                        while($row = $res->next()) {
+                                if ($row['probid'] != $currentprobid) {
+                                        echo '<h4>Problem ' . htmlspecialchars($row['shortname']) . ': ' .
+                                             htmlspecialchars($row['name']) . "</h4>\n";
+                                        $currentprobid = $row['probid'];
+                                        $i = 1;
+                                }
+                                echo "<ul>\n";
+                                print '<li> ' .
+                                      '<img src="../images/txt.png" alt="" /> ' .
+                                      'Testcase ' . $i . ": " . htmlspecialchars($row['description']) . ' ' .
+                                      '(<a href="testcase.php?id=' . urlencode($row['testcaseid']) . '&fetch=input">input</a>)' .
+                                      '(<a href="testcase.php?id=' . urlencode($row['testcaseid']) . '&fetch=output">output</a>)' .
+                                      "</li>\n";
+                                echo "</ul>\n";
+                                $i++;
+                        }
+                } else {
+                    echo "<p class=\"nodata\">No sample data available for this contest.</p>\n\n";
+                }
+        }
+}
+
+function putSampleData($testcaseid, $fetch) {
+  global $DB, $cdata;
+
+  $testcase = $DB->q("MAYBETUPLE SELECT cid, shortname, testcaseid,
+                  $fetch, OCTET_LENGTH($fetch) as size
+                  FROM problem INNER JOIN contestproblem USING (probid)
+                  LEFT JOIN testcase USING (probid)
+                  WHERE sample = 1
+                  AND testcaseid = %i AND cid = %i", $testcaseid, $cdata['cid']);
+
+  if ( empty($testcase) ||
+       !(IS_JURY ||
+         ($testcase['cid']==$cdata['cid'] && difftime($cdata['starttime'],now())<=0)) ) {
+    error("Testcase t$testcaseid not found or not available");
+  }
+
+  $ext = substr($fetch,0,-3);
+  $filename = "$testcase[shortname]-t$testcase[testcaseid].$ext";
+
+  header("Content-Type: text/plain; name=\"$filename\"");
+  header("Content-Disposition: inline; filename=\"$filename\"");
+  header("Content-Length: " . strlen($testcase['size']));
+
+  echo $testcase[$fetch];
+
+  exit(0);
+}
 /**
  * Returns true if at least one problem in the current contest has a
  * problem statement text in the database.
