@@ -148,21 +148,20 @@ function show_loginpage()
 		include(LIBWWWDIR . '/header.php');
 		?>
 <h1>Not Authenticated</h1>
-
-<p>
-Please supply your credentials below, or contact a staff member for assistance.
-</p>
-
 <?php
 if (isset($_SERVER['HTTP_X_DOMJUDGE_AUTOLOGIN']) && $_SERVER['HTTP_X_DOMJUDGE_AUTOLOGIN']=='true'){ ?>
-<p>You can log in using credentials that have been configured by your administrator.</p>
+<p>Your computer has been pre-configured with your credentials and can log you in automatically.</p>
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
 <input type="hidden" name="cmd" value="login" />
 <input type="hidden" name="autologin" value="true">
 <input type="submit" value="Log in using computer credentials">
 </form>
+<hr>
 <?php } // endif X_DOMJUDGE_AUTOLOGIN ?>
 
+<p>
+Please supply your credentials below, or contact a staff member for assistance.
+</p>
 
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <input type="hidden" name="cmd" value="login" />
