@@ -577,8 +577,7 @@ function putSampleDataList() {
         global $cid, $cdata, $DB;
         $fdata = calcFreezeData($cdata);
 
-        $show_sample = dbconfig_get('show_sample_output', 0);
-        if ( ! $show_sample ) {
+        if ( ! have_sampletestcases() ) {
                 echo "<p class=\"nodata\">No sample data available for this contest.</p>\n\n";
         } elseif ( !$fdata['cstarted'] ) {
                 echo "<p class=\"nodata\">Sample data will appear here at contest start.</p>\n\n";
@@ -653,6 +652,20 @@ function have_problemtexts()
 	return $DB->q('VALUE SELECT COUNT(*) FROM problem
 	               INNER JOIN contestproblem USING (probid)
 	               WHERE problemtext_type IS NOT NULL
+	               AND cid = %i', $cid) > 0;
+}
+
+/**
+ * Returns true if at least one problem in the current contest has a
+ * sample testcase in the database.
+ */
+function have_sampletestcases()
+{
+	global $DB, $cid;
+	return $DB->q('VALUE SELECT COUNT(*) FROM problem
+	               INNER JOIN contestproblem USING (probid)
+								 LEFT JOIN testcase USING (probid)
+								 WHERE sample = 1
 	               AND cid = %i', $cid) > 0;
 }
 

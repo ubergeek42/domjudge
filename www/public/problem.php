@@ -9,6 +9,11 @@
 
 require('init.php');
 
+$download_enabled = dbconfig_get('public_dl_problemtext', 0);
+if (!$download_enabled) {
+        error("Problem text downloads disabled by admin");
+}
+
 $id = getRequestID();
 if ( empty($id) ) error("Missing problem id");
 

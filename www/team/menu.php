@@ -4,7 +4,7 @@ echo "<nav><div id=\"menutop\">\n";
 
 echo "<a target=\"_top\" href=\"index.php\" accesskey=\"o\">overview</a>\n";
 
-if ( have_problemtexts() ) {
+if ( have_problemtexts() || have_sampletestcases()) {
 	echo "<a target=\"_top\" href=\"problems.php\" accesskey=\"t\">problems</a>\n";
 }
 

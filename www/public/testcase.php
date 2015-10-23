@@ -9,7 +9,7 @@
 
 require('init.php');
 
-$show_sample = dbconfig_get('download_samples', 1);
+$show_sample = dbconfig_get('public_dl_samples', 0);
 if (!$show_sample) {
         error("Sample testcases disabled by admin");
 }
