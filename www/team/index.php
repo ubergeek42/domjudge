@@ -41,6 +41,8 @@ if ( $fdata['cstarted'] ) {
 echo "initReload(" . $refreshtime . ");\n";
 echo "// -->\n</script>\n";
 
+echo "<h1>" . $cdata['name'] . "</h1>\n";
+
 // Put overview of team submissions (like scoreboard)
 putTeamRow($cdata, array($teamid));
 
