@@ -207,7 +207,9 @@ $(function() {
 			.replace(/\{shortname\}/g, contest_problem_data.shortname)
 			.replace(/\{points\}/g, contest_problem_data.points)
 			.replace(/\{color\}/g, contest_problem_data.color)
-			.replace(/\{lazy_eval_results\}/g, contest_problem_data.lazy_eval_results);
+			.replace(/\{lazy_eval_results_default\}/g, contest_problem_data.lazy_eval_results==""?'selected="selected"':"")
+			.replace(/\{lazy_eval_results_0\}/g, contest_problem_data.lazy_eval_results=="0"?'selected="selected"':"")
+			.replace(/\{lazy_eval_results_1\}/g, contest_problem_data.lazy_eval_results=="1"?'selected="selected"':"");
 
 		$('tbody', $table).append(templateContents);
 
@@ -271,8 +273,11 @@ $(function() {
                             'class="color {required:false,adjust:false,hash:true,caps:false}"'); ?>
 	</td>
 	<td>
-		<?php echo addInputField('number',"data[0][mapping][0][extra][{id}][lazy_eval_results]",
-                                 '{lazy_eval_results}', ' min="0" max="1"'); ?>
+		<select style="width:100%" name="data[0][mapping][0][extra][{id}][lazy_eval_results]" id="data_0__mapping__0__extra__{id}__lazy_eval_results_">
+			<option value="" {lazy_eval_results_default}>use global</option>
+			<option value="0" {lazy_eval_results_0}>no</option>
+			<option value="1"{lazy_eval_results_1}>yes</option>
+		</select>
 	</td>
 </tr>
 </script>
