@@ -75,6 +75,10 @@ if ( !empty($_GET['cmd']) ):
 <?php echo addRadioButton('data[0][public]', (!isset($row['public']) ||  $row['public']), 1)?> <label for="data_0__public_1">yes</label>
 <?php echo addRadioButton('data[0][public]', ( isset($row['public']) && !$row['public']), 0)?> <label for="data_0__public_0">no</label></td></tr>
 
+<tr><td>Public Scoreboard:</td><td>
+<?php echo addRadioButton('data[0][public_scoreboard]', (!isset($row['public_scoreboard']) ||  $row['public_scoreboard']), 1)?> <label for="data_0__public_scoreboard_1">yes</label>
+<?php echo addRadioButton('data[0][public_scoreboard]', ( isset($row['public_scoreboard']) && !$row['public_scoreboard']), 0)?> <label for="data_0__public_scoreboard_0">no</label></td></tr>
+
 <tr id="teams" <?php if (!isset($row['public']) || $row['public']): ?>style="display: none; "<?php endif; ?>>
 	<td>Teams:</td>
 	<td>
