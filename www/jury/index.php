@@ -39,6 +39,7 @@ if ( is_readable('../images/DOMjudgelogo.png') ) {
 <li><a href="teams.php">Teams</a></li>
 <li><a href="team_categories.php">Team Categories</a></li>
 <li><a href="team_affiliations.php">Team Affiliations</a></li>
+<li><a href="divisions.php">Divisions</a></li>
 <?php } ?>
 </ul>
 
