@@ -4,7 +4,8 @@ require('init.php');
 if (isset($_POST['teamid'])) {
 
 	if (isset($_POST['switchd'])) {
-	  $DB->q('UPDATE contestteam SET cid=IF(cid=4,5,4) WHERE teamid = %i', $_POST['teamid']);
+	  $DB->q('UPDATE contestteam SET cid=IF(cid=4,5,4) WHERE teamid = %i AND (cid=4 OR cid=5)', $_POST['teamid']);
+	  $DB->q('UPDATE contestteam SET cid=IF(cid=3,6,3) WHERE teamid = %i AND (cid=3 OR cid=6)', $_POST['teamid']);
 	}
 	if (isset($_POST['switchstealth'])) {
 	  $stealthid = 15;
