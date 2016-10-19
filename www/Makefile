@@ -13,10 +13,12 @@ install-domserver:
 		$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/images/$$d images/$$d/*.png ; \
 	done
 	for d in public team jury api auth ; do \
-		$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/$$d $$d/*.php ; \
+		$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/$$d $$d/*.php; \
 	done
 	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/images/teams images/teams/*.jpg
 	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/jury         jury/*.css
+	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/jury         jury/*.phtml
+	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/team         team/*.phtml
 	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/js           js/*.js js/*.gif js/*.png
 	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/js/flot      js/flot/*.js
 	$(INSTALL_DATA) -t $(DESTDIR)$(domserver_wwwdir)/js/ace       js/ace/*.js
