@@ -4,6 +4,8 @@ echo "<nav><div id=\"menutop\">\n";
 
 echo "<a target=\"_top\" href=\"index.php\" accesskey=\"o\"><span class=\"octicon octicon-home\"></span> overview</a>\n";
 
+echo "<a target=\"_top\" href=\"editor.php\" accesskey=\"e\"><span class=\"octicon octicon-pencil\"></span> editor</a>\n";
+
 echo "<a target=\"_top\" href=\"problems.php\" accesskey=\"t\"><span class=\"octicon octicon-book\"></span> problems</a>\n";
 
 if ( have_printing() ) {

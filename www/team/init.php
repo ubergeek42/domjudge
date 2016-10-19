@@ -72,3 +72,14 @@ if ( !empty($cid) ) {
 	       ( dbconfig_get('verification_required', 0) ?
 	         ' AND j.verified = 1' : ''), $teamid, $cid, $cdata['endtime']);
 }
+
+// set up twig
+require_once(LIBVENDORDIR . '/autoload.php');
+Twig_Autoloader::register();
+$loader = new Twig_Loader_Filesystem(array('.', LIBWWWDIR));
+$twig = new Twig_Environment($loader, ['debug'=>true]);
+
+$twig->addExtension(new Twig_Extension_Debug());
+
+$twig->addFilter(new Twig_SimpleFilter('humansize', 'printsize'));
+// $twig->addFilter(new Twig_SimpleFilter('dump', 'var_dump'));

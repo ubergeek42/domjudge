@@ -1,0 +1,197 @@
+{% import _self as this %}
+{% import 'forms.phtml' as forms %}
+
+<h1>Code Editor</h1>
+{% if submission %}
+<p>
+	Viewing/Editing code from submission <a href="submission_details.php?id={{submission.submitid}}">{{submission.submitid}}</a>.
+	You cannot modify the existing submission, but you can edit the code and create a new submission using the form below.
+</p>
+{% endif %}
+{{ forms.form('editor.php', 'post', "form_editor", 'multipart/form-data') }}
+
+{{ forms.select('probid', probs, submission['probid'], true, false, 1) }}
+{{ forms.select('langid', langs_options, submission['langid'], true, false, 1) }}
+{{ forms.submit('submit', 'submit', "return checkEditorForm();") }}
+
+<style>
+div.filename {
+	margin-bottom: 10px;
+}
+</style>
+<script type="text/javascript" src="../js/tabber.js"></script>
+<script src="../js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="../js/ace/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+var editor = [];
+
+function getProbDescription(probid)
+{
+	switch(probid) {
+		{% for probinfo in probdata %}
+		case '{{probinfo['shortname']}}': return '{{probinfo['name']}}';
+		{% endfor %}
+		default: return '';
+	}
+}
+function langidToAce(langid) {
+	switch (langid) {
+	case 'c':
+	case 'cpp':
+	case 'cxx':
+		return 'c_cpp';
+	case 'pas':
+		return 'pascal';
+	case 'hs':
+		return 'haskell';
+	case 'pl':
+		return 'perl';
+	case 'bash':
+		return 'sh';
+	case 'py2':
+	case 'py3':
+		return 'python';
+	case 'adb':
+		return 'ada';
+	case 'plg':
+		return 'prolog';
+	case 'rb':
+		return 'ruby';
+	}
+	return langid;
+}
+
+function checkEditorForm()
+{
+	'use strict';
+	var langelt = document.getElementById("langid");
+	var language = langelt.options[langelt.selectedIndex].value;
+	var languagetxt = langelt.options[langelt.selectedIndex].text;
+	var fileelt = document.getElementsByName("source[0][filename]")[0];
+	var filename = fileelt.value;
+	var probelt = document.getElementById("probid");
+	var problem = probelt.options[probelt.selectedIndex].value;
+	var problemtxt = probelt.options[probelt.selectedIndex].text + " - " + getProbDescription(probelt.options[probelt.selectedIndex].text);
+	var auxfiles = document.getElementsByName("source[]");
+
+	var error = false;
+	langelt.className = probelt.className = "";
+	if ( language == "" ) {
+		langelt.focus();
+		langelt.className = "errorfield";
+		error = true;
+	}
+	if ( problem == "" ) {
+		probelt.focus();
+		probelt.className = "errorfield";
+		error = true;
+	}
+	if ( filename == "" ) {
+		return false;
+	}
+
+	if ( error ) {
+		return false;
+	} else {
+		var auxfileno = 0;
+		// start at one; skip maincode file field
+		for (var i = 1; i < auxfiles.length; i++) {
+			if (auxfiles[i].value != "" ) {
+				auxfileno++;
+			}
+		}
+		var extrafiles = '';
+		if ( auxfileno > 0 ) {
+			extrafiles = "Additional source files: " + auxfileno + '\n';
+		}
+		var question =
+			'Main source file: ' + filename + '\n' +
+			extrafiles + '\n' +
+			'Problem: ' + problemtxt + '\n'+
+			'Language: ' + languagetxt + '\n' +
+			'\nMake submission?';
+		return confirm (question);
+	}
+
+}
+
+
+</script>
+<div class="tabber">
+{% for source in sources %}
+	<div class="tabbertab {% if loop.first %}tabberdefault{% endif %}">
+		<h2>File {{loop.index}}</h2>
+		<div class="filename"><label>Filename:
+			<input size="100" type="text" class="filename" name="{{ 'source[' ~ loop.index0 ~ '][filename]' }}"
+			placeholder="Filename" value="{%if source['filename'] %}{{ source.filename }}{% else %}file_{{loop.index}}{% endif %}"></label>
+		</div>
+		{% set sourcename = 'source[' ~ loop.index0 ~ '][code]' %}
+	    {% set sourceid = 'source_' ~ loop.index0 ~ '__code_' %}
+		{{ forms.textarea(sourcename, source['sourcecode'], 120, 40) }}
+		<div class="editor" id="editor_{{loop.index0}}"></div>
+	</div>
+{% else %}
+<div class="tabbertab tabberdefault">
+	<h2>File 1</h2>
+	<div class="filename"><label>Filename:
+		<input type="text" class="filename" name="{{ 'source[' ~ loop.index0 ~ '][filename]' }}"
+		placeholder="Filename" value="file_{{loop.index}}"></label>
+	</div>
+	{{ forms.textarea('source[0][code]', '', 120, 40) }}
+	<div class="editor" id="editor_0"></div>
+</div>
+{% endfor %}
+</div>
+{{ forms.endForm() }}
+
+
+<script type="text/javascript">
+var editors = [];
+function initializeEditor(index, elem) {
+	var textarea = $(this);
+	var textarea_id = textarea.attr('id');
+	var ace_id = textarea.siblings('.editor').attr('id');
+	var editor = ace.edit(ace_id);
+
+	textarea.hide();
+	editor.setTheme("ace/theme/eclipse");
+	editor.getSession().setValue(textarea.val());
+	editor.getSession().on('change', function() {
+		textarea.val(editor.getSession().getValue());
+	});
+	editor.setOptions({
+		maxLines: Infinity,
+		minLines:15,
+		enableBasicAutocompletion: true,
+		enableSnippets: true,
+		enableLiveAutocompletion: false
+	});
+	editor.setReadOnly(false);
+	editor.getSession().setUseWrapMode(true)
+
+	editors.push(editor);
+}
+function changeLanguage(newlang) {
+	var acemode = langidToAce(newlang);
+	// Change the syntax highlighting mode in ace
+	editors.forEach(function(elem, index, array) {
+		elem.getSession().setMode("ace/mode/" + acemode);
+	});
+	// Change the file extension to the default for the given language
+	$("input.filename").each(function(){
+		var fname = $(this).val();
+		if(fname.lastIndexOf(".") != -1)
+			fname = fname.substring(0, fname.lastIndexOf("."));
+		fname = fname + "." + newlang;
+		$(this).val(fname);
+	});
+}
+$().ready(function() {
+	$("#form_editor textarea").each(initializeEditor);
+
+	changeLanguage($("#langid").val());
+	$('#langid').change(function() {
+		changeLanguage($(this).val());
+	})
+});
+</script>
