@@ -8,6 +8,10 @@
 
 require('init.php');
 
+if ( !dbconfig_get('enable_team_editor',1) ) {
+	header('Location: index.php');
+	exit();
+}
 
 // submit code
 if ( isset($_POST['source']) ) {

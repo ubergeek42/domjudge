@@ -49,7 +49,9 @@ if( ! $row['valid'] ) {
 	<td><?php echo printtime($row['submittime'])?></td></tr>
 <tr><td>Language:</td>
 	<td><?php echo specialchars($row['langname'])?></td></tr>
+<?php if ( dbconfig_get('enable_team_editor',1) ): ?>
 <tr><td>Edit/Resubmit:</td><td><a href="editor.php?id=<?php echo $id;?>">Edit and Resubmit</a></tr>
+<?php endif; ?>
 </table>
 
 <p>Result: <?php echo printresult($row['result'], TRUE)?></p>

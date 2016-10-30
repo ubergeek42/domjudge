@@ -33,6 +33,7 @@ INSERT INTO `configuration` (`name`, `value`, `type`, `description`) VALUES
 ('results_remap', '{}', 'array_keyval', 'Remap testcase result, e.g. to disable a specific result type such as ''no-output''.'),
 ('lazy_eval_results', '1', 'bool', 'Lazy evaluation of results? If enabled, stops judging as soon as a highest priority result is found, otherwise always all testcases will be judged.'),
 ('enable_printing', '0', 'bool', 'Enable teams and jury to send source code to a printer via the DOMjudge web interface.'),
+('enable_team_editor', '0', 'bool', 'Enable teams to use the online code editor for submissions'),
 ('time_format', '"%H:%M"', 'string', 'The format used to print times. For formatting options see the PHP \'strftime\' function.'),
 ('default_compare', '"compare"', 'string', 'The script used to compare outputs if no special compare script specified.'),
 ('default_run', '"run"', 'string', 'The script used to run submissions if no special run script specified.'),
