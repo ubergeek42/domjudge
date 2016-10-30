@@ -157,6 +157,17 @@ function show_loginpage()
 Please supply your credentials below, or contact a staff member for assistance.
 </p>
 
+<?php
+if (isset($_SERVER['HTTP_X_DOMJUDGE_AUTOLOGIN']) && $_SERVER['HTTP_X_DOMJUDGE_AUTOLOGIN']=='true'){ ?>
+<p>You can log in using credentials that have been configured by your administrator.</p>
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+<input type="hidden" name="cmd" value="login" />
+<input type="hidden" name="autologin" value="true">
+<input type="submit" value="Log in using computer credentials">
+</form>
+<?php } // endif X_DOMJUDGE_AUTOLOGIN ?>
+
+
 <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post">
 <input type="hidden" name="cmd" value="login" />
 <table>
@@ -262,8 +273,14 @@ function do_login()
 			break;
 		}
 
-		$user = trim($_POST['login']);
-		$pass = trim($_POST['passwd']);
+		// Check for autologin headers
+		if (isset($_POST['autologin']) && isset($_SERVER['HTTP_X_DOMJUDGE_AUTOLOGIN']) && $_SERVER['HTTP_X_DOMJUDGE_AUTOLOGIN'] == 'true') {
+			$user = trim($_SERVER['HTTP_X_DOMJUDGE_LOGIN']);
+			$pass = base64_decode(trim($_SERVER['HTTP_X_DOMJUDGE_PASS']));
+		} else {
+			$user = trim($_POST['login']);
+			$pass = trim($_POST['passwd']);
+		}
 
 		$title = 'Authenticate user';
 		$menu = false;
