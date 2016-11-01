@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 $fdata = calcFreezeData($cdata);
-$started = checkrole('jury') || $fdata['started'];
+$problemset_visible = dbconfig_get('public_download_problem', 1) && (checkrole('jury') || $fdata['started']);
 ?>
 <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
 
@@ -15,7 +15,7 @@ $started = checkrole('jury') || $fdata['started'];
             <a class="nav-link" href="./"><i class="fas fa-list-ol"></i> Scoreboard</a>
           </li>
       <li class="nav-item<?=($pagename === 'problems.php'?' active':'')?>">
-<?php if ($started): ?>
+<?php if ($problemset_visible): ?>
             <a class="nav-link" href="problems.php"><i class="fas fa-book-open"></i> Problemset</a>
 <?php else: ?>
             <a class="nav-link disabled"><i class="fas fa-book-open"></i> Problemset</a>

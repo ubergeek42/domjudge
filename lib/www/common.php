@@ -826,7 +826,9 @@ function getProblemTextList() : array
     global $cid, $cdata, $DB;
     $fdata = calcFreezeData($cdata);
 
-    if (!$fdata['started']) {
+    if ( !checkrole('team') && !dbconfig_get('public_download_problem',1) ) {
+        return array();
+    } elseif (!$fdata['started']) {
         return array();
     }
 
