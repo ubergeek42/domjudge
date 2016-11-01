@@ -37,6 +37,7 @@ INSERT INTO `configuration` (`name`, `value`, `type`, `description`) VALUES
 ('time_format', '"%H:%M"', 'string', 'The format used to print times. For formatting options see the PHP \'strftime\' function.'),
 ('default_compare', '"compare"', 'string', 'The script used to compare outputs if no special compare script specified.'),
 ('default_run', '"run"', 'string', 'The script used to run submissions if no special run script specified.'),
+('public_download_problem', '1', 'bool', 'Allow the public to download problem statements'),
 ('allow_registration', '0', 'bool', 'Allow users to register themselves with the system?'),
 ('allow_openid_auth', '0', 'bool', 'Allow users to log in using OpenID'),
 ('openid_autocreate_team', '1', 'bool', 'Create a team for each user that logs in with OpenID'),

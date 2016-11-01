@@ -603,7 +603,9 @@ function putProblemTextList()
 	global $cid, $cdata, $DB;
 	$fdata = calcFreezeData($cdata);
 
-	if ( !$fdata['cstarted'] ) {
+	if ( !checkrole('team') && !dbconfig_get('public_download_problem',1) ) {
+		echo "<p class=\"nodata\">Problem texts are not public for this contest</p>\n\n";
+	} elseif ( !$fdata['cstarted'] ) {
 		echo "<p class=\"nodata\">Problem texts will appear here at contest start.</p>\n\n";
 	} else {
 

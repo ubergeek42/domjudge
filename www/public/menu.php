@@ -1,7 +1,9 @@
 <nav><div id="menutop">
 <a href="index.php" accesskey="h"><span class="octicon octicon-home"></span> home</a>
-<a href="problems.php" accesskey="p"><span class="octicon octicon-book"></span> problems</a>
-<?php
+<?php 
+if ( dbconfig_get('public_download_problem',1) ) {
+	echo "<a href=\"problems.php\" accesskey=\"p\"><span class=\"octicon octicon-book\"></span> problems</a>";
+}
 logged_in(); // fill userdata
 
 if ( checkrole('team') ) {

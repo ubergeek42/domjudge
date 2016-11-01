@@ -8,6 +8,11 @@
 
 require('init.php');
 
+if ( !dbconfig_get('public_download_problem',1) ) {
+	header('Location: problems.php');
+	exit();
+}
+
 $id = getRequestID();
 if ( empty($id) ) error("Missing problem id");
 
