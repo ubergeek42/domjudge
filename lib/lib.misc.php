@@ -42,7 +42,7 @@ function getCurContests($fulldata = FALSE, $onlyofteam = NULL,
 		                    ORDER BY activatetime", $onlyofteam);
 	} elseif ( $onlyofteam === -1 ) {
 		$contests = $DB->q("SELECT * FROM contest
-		                    WHERE enabled = 1 AND public = 1 ${extra}
+		                    WHERE enabled = 1 AND (public = 1 OR public_scoreboard = 1) ${extra}
 		                    AND ( deactivatetime IS NULL OR
 		                          deactivatetime > UNIX_TIMESTAMP() )
 		                    ORDER BY activatetime");

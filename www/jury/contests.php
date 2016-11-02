@@ -209,7 +209,7 @@ if( count($res) == 0 ) {
 			      printtime($row[$time.'time']) : '-' ) . "</a></td>\n";
 		}
 		echo "<td>" . $link . ($row['process_balloons'] ? 'yes' : 'no') . "</a></td>\n";
-		echo "<td>" . $link . ($row['public'] ? 'yes' : 'no') . "</a></td>\n";
+		echo "<td>" . $link . ($row['public'] ? 'yes' : ($row['public_scoreboard'] ? 'scoreboard': 'no')) . "</a></td>\n";
 		echo "<td>" . $link . ($row['public'] ? '<em>all</em>' : $row['numteams']) . "</a></td>\n";
 		echo "<td>" . $link . $numprobs[$row['cid']] . "</a></td>\n";
 		echo "<td>" . $link . specialchars($row['name']) . "</a></td>\n";
