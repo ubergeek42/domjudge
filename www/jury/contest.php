@@ -90,6 +90,10 @@ Relative time format: <b><kbd><?php echo $human_rel_datetime ?></kbd></b><br />
 <?php echo addRadioButton('data[0][public]', (!isset($row['public']) ||  $row['public']), 1)?> <label for="data_0__public_1">yes</label>
 <?php echo addRadioButton('data[0][public]', (isset($row['public']) && !$row['public']), 0)?> <label for="data_0__public_0">no</label></td><td></td></tr>
 
+<tr><td>Public Scoreboard:</td><td>
+<?php echo addRadioButton('data[0][public_scoreboard]', (!isset($row['public_scoreboard']) ||  $row['public_scoreboard']), 1)?> <label for="data_0__public_scoreboard_1">yes</label>
+<?php echo addRadioButton('data[0][public_scoreboard]', ( isset($row['public_scoreboard']) && !$row['publi_scoreboardc']), 0)?> <label for="data_0__public_scoreboard_0">no</label></td><td></td></tr>
+
 <tr id="teams" <?php if (!isset($row['public']) || $row['public']): ?>style="display: none; "<?php endif; ?>>
     <td>Teams:</td>
     <td>
@@ -424,6 +428,9 @@ echo '<tr><td>Process balloons:</td><td>' .
      "</td></tr>\n";
 echo '<tr><td>Public:</td><td>' .
      ($data['public'] ? 'yes' : 'no') .
+     "</td></tr>\n";
+echo '<tr><td>Public Scoreboard:</td><td>' .
+     ($data['public_scoreboard'] ? 'yes' : 'no') .
      "</td></tr>\n";
 echo '<tr><td>Teams:</td><td>';
 if ($data['public']) {
