@@ -609,7 +609,7 @@ $().ready(function(){
 				points: { show: true  }
 			},
 			yaxis: { min: 0 },
-			xaxis: { minTickSize: 1, tickSize: 1}
+			xaxis: { minTickSize: 1, tickDecimals: 0}
 		}
 	);
 });
