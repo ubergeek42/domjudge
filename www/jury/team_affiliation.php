@@ -71,7 +71,7 @@ endif;
 $data = $DB->q('MAYBETUPLE SELECT * FROM team_affiliation WHERE affilid = %s', $id);
 if ( ! $data ) error("Missing or invalid affiliation id");
 
-$affillogo = "../images/affiliations/" . urlencode($data['affilid']) . ".png";
+$affillogo = "../images/affiliations/" . urlencode($data['shortname']) . ".png";
 $countryflag = "../images/countries/" . urlencode($data['country']) . ".png";
 
 echo "<h1>Affiliation: ".specialchars($data['name'])."</h1>\n\n";

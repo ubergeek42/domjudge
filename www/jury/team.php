@@ -193,7 +193,7 @@ if ( isset($_GET['edited']) ) {
 
 $users = $DB->q('TABLE SELECT userid,username FROM user WHERE teamid = %i', $id);
 
-$affillogo   = "../images/affiliations/" . urlencode($row['affilid']) . ".png";
+$affillogo   = "../images/affiliations/" . urlencode($row['affshortname']) . ".png";
 $countryflag = "../images/countries/"    . urlencode($row['country']) . ".png";
 $teamimage   = "../images/teams/"        . urlencode($row['teamid'])  . ".jpg";
 

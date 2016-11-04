@@ -194,7 +194,8 @@ function getTeams($filter, $jury, $cdata) {
 
 	return $DB->q('KEYTABLE SELECT team.teamid AS ARRAYKEY, team.teamid, team.externalid,
 	               team.name, team.categoryid, team.affilid, penalty, sortorder,
-	               country, color, team_affiliation.name AS affilname
+		       country, color, team_affiliation.name AS affilname,
+		       team_affiliation.shortname as affilshortname
 	               FROM team
 	               INNER JOIN contest ON (contest.cid = %i)
 	               LEFT JOIN contestteam ct USING (teamid, cid)
@@ -402,6 +403,15 @@ function renderScoreBoardTable($sdata, $myteamid = null, $static = FALSE,
 							' title="' . specialchars($teams[$team]['country']) . '" />';
 					} else {
 						echo specialchars($teams[$team]['country']);
+					}
+				} elseif (isset($teams[$team]['affilshortname'])) {
+					// No country flag, output affiliation logo instead
+					$affillogo = '../images/affiliations/' .
+						urlencode($teams[$team]['affilshortname']) . '.png';
+					if ( is_readable($affillogo) ) {
+						echo '<img src="' . $affillogo . '"' .
+							' alt="' . specialchars($teams[$team]['affilname']) . '"' .
+							' title="' . specialchars($teams[$team]['affilname']) . '" />';
 					}
 				}
 				if ( IS_JURY ) echo '</a>';
