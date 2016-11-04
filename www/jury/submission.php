@@ -162,6 +162,14 @@ function compute_lcsdiff($line1, $line2) {
 }
 
 require('init.php');
+//
+// Include flot javascript library
+$extrahead = '';
+$extrahead .= '<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="../js/flot/excanvas.js"></script><![endif]-->';
+$extrahead .= '<script language="javascript" type="text/javascript" src="../js/flot/jquery.js"></script>';
+$extrahead .= '<script language="javascript" type="text/javascript" src="../js/flot/jquery.flot.js"></script>';
+$extrahead .= '<script language="javascript" type="text/javascript" src="../js/flot/jquery.flot.stack.js"></script>';
+$extrahead .= '<script language="javascript" type="text/javascript" src="../js/flot/jquery.flot.categories.js"></script>';
 
 $id = getRequestID();
 if ( !empty($_GET['jid']) ) $jid = (int)$_GET['jid'];
@@ -479,6 +487,16 @@ $runs = $DB->q('TABLE SELECT r.runid, r.judgingid,
 		WHERE t.probid = %s ORDER BY rank',
 	       $jid, $submdata['probid']);
 
+if ( sizeof($jdata) > 1 ) {
+// Save ourselves a query if there's only one judging
+$tctimes = $DB->q('TABLE SELECT j.submitid, r.judgingid, r.runid, r.testcaseid, r.runtime, t.rank
+		   FROM testcase t
+		   LEFT JOIN judging_run r ON ( r.testcaseid = t.testcaseid )
+		   LEFT JOIN judging j ON (r.judgingid = j.judgingid)
+		   WHERE j.submitid = %i
+		   ORDER BY rank', $id);
+}
+
 // Use original submission as previous, or try to find a previous
 // submission/judging of the same team/problem.
 if ( isset($submdata['origsubmitid']) ) {
@@ -530,6 +548,74 @@ if ( isset($jud['rejudgingid']) ) {
 } else if ( $jud['valid'] != 1 ) {
 	$state = ' (INVALID)';
 }
+
+// Only show graph if there's more than one judging
+if ( sizeof($jdata) > 1 ) {
+echo "<div>";
+echo "<div style=\"display: inline-block\">";
+echo "<h3 id=\"graphs\">Max Runtimes</h3>";
+echo "<div style=\"width: 500px; height: 250px\" id='maxruntimechart'></div>";
+echo "</div>";
+
+echo "<div style=\"display: inline-block\">";
+echo "<h3 id=\"graphs\">Testcase Runtimes</h3>";
+echo "<div style=\"width: 500px; height: 250px\" id='tcruntimechart'></div>";
+echo "</div>";
+echo "</div>";
+?>
+<script type="text/javascript">
+$().ready(function(){
+	// Bar graph of maxruntimes
+	var data = [];
+	<?php $i=0; foreach($jdata as $key=>$jr) {
+		$i++;
+		echo "data.push(['s$key', ${jr['max_runtime']}]);\n";
+	}
+	?>
+	$('#maxruntimechart').plot([
+		{
+			data: data,
+			bars: { show: true, barWidth: 0.6, align: 'center' }
+		}
+	],{
+	xaxis: {
+		mode: 'categories',
+		tickLength: 0
+	}
+	});
+	// Testcase Times Line Graph
+	<?php foreach($jdata as $id=>$ignored) {
+	echo "var data_$id = [];";
+	}?>
+	var data = [];
+	<?php $i=0; foreach($tctimes as $tctime) {
+		$i++;
+		$tc_sid = $tctime['submitid'];
+		$tc_jid = $tctime['judgingid'];
+		$tc_rank = $tctime['rank'];
+		$tc_time = $tctime['runtime'];
+		echo "data_${tc_jid}.push([$tc_rank, $tc_time]);;\n";
+	}
+	?>
+	$('#tcruntimechart').plot(
+		[
+			<?php foreach ($jdata as $id=>$ignore) {
+			echo "{data: data_$id, show: 'lines'},\n";
+			}?>
+		],
+		{
+			series: {
+				lines: { show: true  },
+				points: { show: true  }
+			},
+			yaxis: { min: 0 },
+			xaxis: { minTickSize: 1, tickSize: 1}
+		}
+	);
+});
+</script>
+<?php
+} // endif (sizeof($jdata) > 1)
 
 echo rejudgeForm('submission', $id) . "<br /><br />\n\n";
 
