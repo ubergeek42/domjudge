@@ -16,7 +16,6 @@ class TeamController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $teams = $em->getRepository('DOMJudgeBundle:Team')->findAll();
-        dump($teams);
         // replace this example code with whatever you need
         return $this->render('DOMJudgeBundle:team:index.html.twig',[
           'teams' => $teams
