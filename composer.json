@@ -19,7 +19,7 @@
 		"sensio/framework-extra-bundle": "^3.0.2",
 		"symfony/monolog-bundle": "^3.0.2",
 		"symfony/swiftmailer-bundle": "^2.3.10",
-		"symfony/symfony": "3.2.*",
+		"symfony/symfony": "3.4.*",
 		"twig/twig": "2.3.*",
 		"friendsofsymfony/rest-bundle": "^2.2",
 		"jms/serializer-bundle": "^2.0",

@@ -643,7 +643,9 @@ function judge($row)
 		}
 
 		// get the next testcase
-		$testcase = request('testcases', 'GET', 'judgingid=' . urlencode($row['judgingid']));
+		$testcase = request('testcases', 'GET',
+                        'judgingid=' . urlencode($row['judgingid']) .
+                        '&judgehost=' . urlencode($myhost));
 		$tc = dj_json_decode($testcase);
 		if ( $tc === NULL ) {
 			$disabled = dj_json_encode(array(

@@ -437,12 +437,12 @@ function judgings_POST($args)
 		$extra_where .= 'AND s.langid IN (%As) ';
 	}
 
-	if ( isset($rejudge_own) && (bool)$rejudge_own==false ) {
-		$extra_join  .= 'LEFT JOIN judging j ON (j.submitid=s.submitid AND j.judgehost=%s) ';
-		$extra_where .= 'AND j.judgehost IS NULL ';
-	} else {
+	// if ( isset($rejudge_own) && (bool)$rejudge_own==false ) {
+		// $extra_join  .= 'LEFT JOIN judging j ON (j.submitid=s.submitid AND j.judgehost=%s) ';
+		// $extra_where .= 'AND j.judgehost IS NULL ';
+	// } else {
 		$extra_join  .= '%_ ';
-	}
+	// }
 
 
 	// Prioritize teams according to last judging time
@@ -458,19 +458,27 @@ function judgings_POST($args)
 	                    'ORDER BY judging_last_started ASC, submittime ASC, s.submitid ASC',
 	                    $host, $cids, $contests, $problems, $languages);
 
+
 	foreach ( $submitids as $submitid ) {
 		// update exactly one submission with our judgehost name
 		// Note: this might still return 0 if another judgehost beat
 		// us to it
 		$numupd = $DB->q('RETURNAFFECTED UPDATE submission
-		                  SET judgehost = %s
+		                  SET judgehost = "initialized"
 		                  WHERE submitid = %i AND judgehost IS NULL',
-		                  $host, $submitid);
-
+		                  $submitid);
 		if ( $numupd==1 ) break;
 	}
 
-	if ( empty($submitid) || $numupd == 0 ) return '';
+
+        $jid = null;
+	if ( empty($submitid) || $numupd == 0 ) {
+            // Also search for submissions that have not been finished
+	    $row = $DB->q('MAYBETUPLE SELECT submitid,judging.judgingid FROM submission LEFT JOIN judging USING(submitid) LEFT JOIN judging_run USING(judgingid) WHERE judging_run.judgehost IS NULL ORDER BY judgingid DESC LIMIT 1');
+            if (empty($row['submitid']) || empty($row['judgingid'])) return '';
+            $jid = $row['judgingid'];
+            $submitid = $row['submitid'];
+        }
 
 	$row = $DB->q('TUPLE SELECT s.submitid, s.cid, s.teamid, s.probid, s.langid,
 				   s.rejudgingid, s.entry_point, s.origsubmitid,
@@ -534,6 +542,7 @@ function judgings_POST($args)
 		}
 	}
 
+if ($jid == null) {
 	$DB->q('START TRANSACTION');
 
 	$jid = $DB->q('RETURNID INSERT INTO judging (submitid,cid,starttime,judgehost' .
@@ -547,8 +556,15 @@ function judgings_POST($args)
 
 	eventlog('judging', $jid, 'create', $row['cid']);
 
+  // Pre-create judging run for each testcase
+  $testcases = $DB->q('COLUMN SELECT testcaseid FROM testcase WHERE probid = %i', $row['probid']);
+  foreach ($testcases as $i) {
+    $runid = $DB->q('RETURNID INSERT INTO judging_run (judgingid, testcaseid)
+	                 VALUES (%i, %i)',
+	                $jid, $i);
+  }
 	$DB->q('COMMIT');
-
+}
 	$row['submitid']    = safe_int($row['submitid']);
 	$row['cid']         = safe_int($row['cid']);
 	$row['teamid']      = safe_int($row['teamid']);
@@ -659,15 +675,15 @@ function judging_runs_POST($args)
 
 	$DB->q('START TRANSACTION');
 
-	$runid = $DB->q('RETURNID INSERT INTO judging_run (judgingid, testcaseid, runresult,
-	                 runtime, endtime, output_run, output_diff, output_error, output_system)
-	                 VALUES (%i, %i, %s, %f, %s, %s, %s, %s, %s)',
-	                $args['judgingid'], $args['testcaseid'],
+	$runid = $DB->q('RETURNID UPDATE judging_run SET
+                         runresult = %s, runtime = %f, endtime = %s, output_run = %s, output_diff = %s, output_error = %s, output_system = %s
+	                 WHERE judgingid = %i and testcaseid = %i',
 	                $args['runresult'], $args['runtime'], now(),
 	                base64_decode($args['output_run']),
 	                base64_decode($args['output_diff']),
 	                base64_decode($args['output_error']),
-	                base64_decode($args['output_system']));
+	                base64_decode($args['output_system']),
+	                $args['judgingid'], $args['testcaseid']);
 
 	eventlog('judging_run', $runid, 'create', $jud['cid']);
 
@@ -991,9 +1007,11 @@ function testcases($args)
 {
 	global $DB, $api;
 
-	if (!checkargs($args, array('judgingid'))) {
+	if (!checkargs($args, array('judgingid', 'judgehost'))) {
 		return '';
 	}
+
+  $host = $args['judgehost'];
 
 	// endtime is set: judging is fully done; return empty
 	$row = $DB->q('TUPLE SELECT endtime,probid
@@ -1001,13 +1019,68 @@ function testcases($args)
 	               WHERE judgingid = %i', $args['judgingid']);
 	if ( !empty($row['endtime']) ) return '';
 
-	$judging_runs = $DB->q("COLUMN SELECT testcaseid FROM judging_run
-	                        WHERE judgingid = %i", $args['judgingid']);
-	$sqlextra = count($judging_runs) ? "AND testcaseid NOT IN (%Ai)" : "%_";
-	$testcase = $DB->q("MAYBETUPLE SELECT testcaseid, rank, probid, md5sum_input, md5sum_output
-	                    FROM testcase WHERE probid = %i $sqlextra ORDER BY rank LIMIT 1",
-	                   $row['probid'], $judging_runs);
+	$mymax = $DB->q("MAYBEVALUE SELECT MAX(runid) FROM judging_run
+                          WHERE judgingid = %i AND endtime IS NOT NULL AND judgehost = %s",
+                         $args['judgingid'], $host);
+        // 2147483647 is MAX int, so that we sort this properly
+        if (!is_null($mymax)) {
+            // try to continue where the judgehost left off(if possible)
+	    $judging_runs = $DB->q("TABLE SELECT runid,testcaseid,rank FROM judging_run LEFT JOIN testcase USING (testcaseid)
+	                        WHERE judgingid = %i AND judgehost IS NULL AND endtime is NULL ORDER BY if(runid > %i, 0, 2147483647),rank", $args['judgingid'], intval($mymax));
+        } else {
+            // get a new judgement, it should be either first one, or halfway between two other completed judgings
+	    $judging_runs = $DB->q("TABLE SELECT runid,testcaseid,rank FROM judging_run LEFT JOIN testcase USING (testcaseid)
+    	                            WHERE judgingid = %i AND judgehost is NULL AND endtime is NULL ORDER BY rank", $args['judgingid']);
+        }
 
+  // Figure out the middle of the biggest run of open unjudged testcases
+  /* TODO TODO
+  $streakstart = -1;
+  $longest_streak = -1;
+  $streak = -1;
+  $lastrank = 0;
+  foreach ( $judging_runs as $judging_run ) {
+     if ($judging_run['rank'] == $lastrank+1) {
+         $lastrank = $judging_run['rank'];
+         $streak += 1;
+     } else {
+         if ($streak > $longest_streak) {
+             $longest_streak = $streak;
+             $streakstart = $judging_run['rank'] - $streak;
+         }
+         $streak = -1;
+     }
+  }
+
+  $prefer_start = $streakstart + $longest_streak/2;
+
+  for($i =$prefer_start; $i<count($judging_runs); $i++) {
+    // update exactly one judging_run with our judgehost name
+    // Note: this might still return 0 if another judgehost beat
+    // us to it
+    $numupd = $DB->q('RETURNAFFECTED UPDATE judging_run
+                      SET judgehost = %s
+                      WHERE runid = %i AND judgehost IS NULL',
+                      $host, $judging_run['runid']);
+    if ( $numupd==1 ) break;
+  }
+  */
+  foreach ( $judging_runs as $judging_run ) {
+    // update exactly one judging_run with our judgehost name
+    // Note: this might still return 0 if another judgehost beat
+    // us to it
+    $numupd = $DB->q('RETURNAFFECTED UPDATE judging_run
+                      SET judgehost = %s
+                      WHERE runid = %i AND judgehost IS NULL',
+                      $host, $judging_run['runid']);
+    if ( $numupd==1 ) break;
+  }
+
+ 	if ( empty($judging_run) || $numupd == 0 ) return '';
+
+  $testcase = $DB->q("MAYBETUPLE SELECT testcaseid, rank, probid, md5sum_input, md5sum_output
+	                    FROM testcase WHERE testcaseid = %i",
+	                   $judging_run['testcaseid']);
 	// would probably never be empty, because then endtime would also
 	// have been set. we cope with it anyway for now.
 	if (is_null($testcase)) {
@@ -1020,7 +1093,10 @@ function testcases($args)
 
 	return $testcase;
 }
-$args = array('judgingid' => 'Get the next-to-judge testcase for this judging.');
+$args = array(
+  'judgingid' => 'Get the next-to-judge testcase for this judging.',
+  'judgehost' => 'Judging is to be judged by this specific judgehost.'
+);
 $doc = 'Get a testcase.';
 $exArgs = array();
 $roles = array('jury','judgehost');
