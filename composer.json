@@ -62,6 +62,7 @@
 		"fortawesome/font-awesome": "5.*",
 		"friendsofsymfony/rest-bundle": "^2.5",
 		"ircmaxell/password-compat": "*",
+		"jimdo/prometheus_client_php": "^0.9.1",
 		"jms/serializer-bundle": "^3.4",
 		"mbostock/d3": "^3.5",
 		"nelmio/api-doc-bundle": "^3.4",

@@ -79,6 +79,7 @@ class DOMJudgeIPAuthenticator extends AbstractGuardAuthenticator
         // If it's stateless, we provide auth support every time
         $stateless_fw_contexts = [
             'security.firewall.map.context.api',
+            'security.firewall.map.context.metrics',
         ];
         $fwcontext             = $request->attributes->get('_firewall_context', '');
         $ipAutologin           = $this->dj->dbconfig_get('ip_autologin', false);
