@@ -1,0 +1,13 @@
+parameters:
+  env(SENTRY_DSN): ~ # default null
+  sentry_dsn: '%env(string:SENTRY_DSN)%'
+sentry:
+    dsn: "%sentry_dsn%"
+    options:
+        environment: '%kernel.environment%'
+        release: '%domjudge.version%' #your app version
+        excluded_exceptions: #exclude validation errors
+            - 'Symfony\Component\Security\Core\Exception\AuthenticationException'
+            - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
+            - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
+            - 'Symfony\Component\Routing\Exception\ResourceNotFoundException'
